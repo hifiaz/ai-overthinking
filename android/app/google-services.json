@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "890956399810",
+    "project_id": "ai-overthinking",
+    "storage_bucket": "ai-overthinking.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:890956399810:android:b4a6db14bfc640607ba75b",
+        "android_client_info": {
+          "package_name": "com.devindo.ai_overthinking"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBI-3J_RKg66coibgzQVf_vLmbV7PocolM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
