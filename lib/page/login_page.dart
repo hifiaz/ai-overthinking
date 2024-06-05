@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -87,36 +88,35 @@ class _LoginPageState extends State<LoginPage> {
                     child: ShadButton(
                       text: const Text('Login'),
                       onPressed: () async {
-                        // auth.login((id: 1, name: 'John Doe'));
                         context.go('/');
-                        // if (formKey.currentState!.saveAndValidate()) {
-                        //   try {
-                        //     if (context.mounted) {
-                        //       ShadToaster.of(context).show(
-                        //         ShadToast(
-                        //           title: const Text('Login Success'),
-                        //           description: const Text('Enjoy Due Kasir!'),
-                        //           action: ShadButton.outline(
-                        //             text: const Text('Back!'),
-                        //             onPressed: () => ShadToaster.of(context).hide(),
-                        //           ),
-                        //         ),
-                        //       );
-                        //       Future.delayed(const Duration(seconds: 2))
-                        //           .then((_) => context.go('/sync'));
-                        //     }
-                        //   } on AuthException catch (e) {
-                        //     if (context.mounted) {
-                        //       ShadToaster.of(context).show(
-                        //         ShadToast(
-                        //           backgroundColor: Colors.red,
-                        //           title: const Text('Error'),
-                        //           description: Text(e.message),
-                        //         ),
-                        //       );
-                        //     }
-                        //   }
-                        // }
+                        if (formKey.currentState!.saveAndValidate()) {
+                          try {
+                            final credential = await FirebaseAuth.instance
+                                .signInWithEmailAndPassword(
+                              email: formKey.currentState!.value['email'],
+                              password: formKey.currentState!.value['password'],
+                            );
+                            if (credential.user != null) {
+                              if (context.mounted) {
+                                context.go('/');
+                              }
+                            }
+                          } on FirebaseAuthException catch (e) {
+                            if (context.mounted) {
+                              ShadToaster.of(context).show(
+                                ShadToast(
+                                  backgroundColor: Colors.red,
+                                  title: const Text('Something went wrong',
+                                      style: TextStyle(color: Colors.white)),
+                                  description: Text(
+                                    e.message ?? 'Unknown error',
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              );
+                            }
+                          }
+                        }
                       },
                     ),
                   ),

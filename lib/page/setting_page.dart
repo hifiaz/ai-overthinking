@@ -1,3 +1,4 @@
+import 'package:ai_overthinking/service/auth_service.dart';
 import 'package:flutter/material.dart';
 
 class SettingPage extends StatefulWidget {
@@ -14,8 +15,14 @@ class _SettingPageState extends State<SettingPage> {
       appBar: AppBar(
         title: const Text('Settings'),
       ),
-      body: const Center(
-        child: Text('Settings page'),
+      body: Center(
+        child: Column(
+          children: [
+            const Text('Settings page'),
+            TextButton(
+                onPressed: () => auth.logout(), child: const Text('logout')),
+          ],
+        ),
       ),
     );
   }

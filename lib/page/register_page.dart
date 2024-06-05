@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -85,7 +83,6 @@ class _RegisterPageState extends State<RegisterPage> {
                             email: formKey.currentState!.value['email'],
                             password: formKey.currentState!.value['password'],
                           );
-                          log('register ${credential.user}');
                           if (credential.user != null) {
                             if (context.mounted) {
                               context.go('/');

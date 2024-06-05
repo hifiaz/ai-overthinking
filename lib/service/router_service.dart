@@ -13,7 +13,7 @@ final router = GoRouter(
     GoRoute(
       path: '/',
       redirect: (context, state) {
-        if (auth.currentUser().value == null) return '/login';
+        if (auth.currentUser.value.value == null) return '/login';
         return null;
       },
       builder: (context, state) => const HomePage(),

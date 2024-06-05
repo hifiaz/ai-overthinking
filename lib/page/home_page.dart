@@ -52,14 +52,17 @@ class _HomePageState extends State<HomePage> {
                     ),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: ShadCard(
-                        title: const ShadAvatar(
-                          'assets/settings.png',
-                          size: Size(120, 120),
-                          placeholder: Text('CN'),
+                      child: GestureDetector(
+                        onTap: () => context.push('/settings'),
+                        child: ShadCard(
+                          title: const ShadAvatar(
+                            'assets/settings.png',
+                            size: Size(120, 120),
+                            placeholder: Text('CN'),
+                          ),
+                          description: Text('Settings ->',
+                              style: ShadTheme.of(context).textTheme.h4),
                         ),
-                        description: Text('Settings ->',
-                            style: ShadTheme.of(context).textTheme.h4),
                       ),
                     )
                   ],

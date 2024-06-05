@@ -8,7 +8,7 @@ class FirebaseService {
   // database or library like Firebase
   final _controller = StreamController<User?>();
 
-  Stream<User?> userStream() => _controller.stream;
+  Stream<User?> userStream() => FirebaseAuth.instance.authStateChanges();
 
   Stream<List<Setting>> todosStream(String userId) {
     return Stream.value([
@@ -22,7 +22,7 @@ class FirebaseService {
   }
 
   void logout() {
-    _controller.add(null);
+    FirebaseAuth.instance.signOut();
   }
 
   void dispose() {

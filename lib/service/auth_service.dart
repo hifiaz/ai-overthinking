@@ -9,18 +9,16 @@ class Auth {
   late final currentUser = api.userStream().toSignal();
 
   late final settings = streamSignal(
-    () => api.todosStream(currentUser().value?.uid ?? '0'),
+    () => api.todosStream(currentUser.value.value?.uid ?? '0'),
     dependencies: [currentUser],
   );
 
   /// Computed signal that only emits when the user is logged in / out
-  late final isLoggedIn = computed(
-    () => currentUser().value != null,
-  );
+  late final isLoggedIn = computed(() => currentUser.value.value != null);
 
   /// Computed signal that returns the current user name or 'N/A'
   late final currentUserName = computed(
-    () => currentUser().value?.email ?? 'N/A',
+    () => currentUser.value.value?.email ?? 'N/A',
   );
 
   // Dispose of the stream controller
