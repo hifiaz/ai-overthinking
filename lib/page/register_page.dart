@@ -1,3 +1,5 @@
+import 'package:ai_overthinking/service/firebase_service.dart';
+import 'package:ai_overthinking/utils/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -84,23 +86,22 @@ class _RegisterPageState extends State<RegisterPage> {
                             password: formKey.currentState!.value['password'],
                           );
                           if (credential.user != null) {
-                            if (context.mounted) {
-                              context.go('/');
-                            }
+                            FirebaseService()
+                                .createUser(
+                                  email: credential.user?.email,
+                                  quota: 3,
+                                )
+                                .then((value) => context.go('/'))
+                                .catchError(
+                                  (error) => toastError(
+                                    context,
+                                    message: error.message,
+                                  ),
+                                );
                           }
                         } on FirebaseAuthException catch (e) {
                           if (context.mounted) {
-                            ShadToaster.of(context).show(
-                              ShadToast(
-                                backgroundColor: Colors.red,
-                                title: const Text('Something went wrong',
-                                    style: TextStyle(color: Colors.white)),
-                                description: Text(
-                                  e.message ?? 'Unknown error',
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                              ),
-                            );
+                            toastError(context, message: e.message);
                           }
                         }
                       }

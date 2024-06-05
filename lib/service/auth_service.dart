@@ -1,5 +1,4 @@
 import 'package:ai_overthinking/service/firebase_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:signals/signals_flutter.dart';
 
 class Auth {
@@ -24,11 +23,7 @@ class Auth {
   // Dispose of the stream controller
   void dispose() {
     currentUser.dispose();
-    api.dispose();
   }
-
-  /// Login with user data
-  void login(User data) => api.login(data);
 
   /// Logout
   void logout() => api.logout();

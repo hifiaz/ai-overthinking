@@ -1,6 +1,8 @@
+import 'package:ai_overthinking/provider/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
+import 'package:signals/signals_flutter.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,12 +14,17 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
+    final user = userProvider.user.watch(context);
     return Scaffold(
       appBar: AppBar(
         actions: [
-          TextButton(
-              onPressed: () => context.push('/settings'),
-              child: const Text('Credit 100')),
+          user.map(
+            data: (val) => TextButton(
+                onPressed: () => context.push('/settings'),
+                child: Text('Credit ${val?.quota}')),
+            error: (err) => const SizedBox(),
+            loading: () => const SizedBox(),
+          ),
         ],
       ),
       body: Stack(
