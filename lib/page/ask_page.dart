@@ -1,8 +1,14 @@
+import 'dart:developer';
+
+import 'package:ai_overthinking/model/content_model.dart';
 import 'package:ai_overthinking/page/widget/message_widget.dart';
+import 'package:ai_overthinking/provider/content_provider.dart';
+import 'package:ai_overthinking/service/firebase_service.dart';
 import 'package:ai_overthinking/service/generative_service.dart';
 import 'package:ai_overthinking/utils/env.dart';
 import 'package:flutter/material.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
+import 'package:signals/signals_flutter.dart';
 
 class AskPage extends StatefulWidget {
   const AskPage({super.key});
@@ -17,8 +23,8 @@ class _AskPageState extends State<AskPage> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _textController = TextEditingController();
   final FocusNode _textFieldFocus = FocusNode();
-  final List<({Image? image, String? text, bool fromUser})> _generatedContent =
-      <({Image? image, String? text, bool fromUser})>[];
+  // final List<({Image? image, String? text, bool fromUser})> _generatedContent =
+  //     <({Image? image, String? text, bool fromUser})>[];
   bool _loading = false;
 
   @override
@@ -40,17 +46,20 @@ class _AskPageState extends State<AskPage> {
           children: [
             Expanded(
               child: Environment.token.isNotEmpty
-                  ? ListView.builder(
-                      controller: _scrollController,
-                      itemBuilder: (context, idx) {
-                        final content = _generatedContent[idx];
-                        return MessageWidget(
-                          text: content.text,
-                          isFromUser: content.fromUser,
-                        );
-                      },
-                      itemCount: _generatedContent.length,
-                    )
+                  ? Watch((context) {
+                      final generatedContent = contentProvider.content.reversed;
+                      return ListView.builder(
+                        controller: _scrollController,
+                        itemBuilder: (context, idx) {
+                          final content = generatedContent.elementAt(idx);
+                          return MessageWidget(
+                            text: content.text,
+                            isFromUser: content.fromUser,
+                          );
+                        },
+                        itemCount: generatedContent.length,
+                      );
+                    })
                   : ListView(
                       children: const [
                         Text(
@@ -134,17 +143,32 @@ class _AskPageState extends State<AskPage> {
     });
 
     try {
-      _generatedContent.add((image: null, text: message, fromUser: true));
+      final question = ContentModel(
+          image: null,
+          text: message,
+          fromUser: true,
+          createdAt: DateTime.now());
+      contentProvider.content.add(question);
+
+      FirebaseService()
+          .createContent(question)
+          .then((value) => log("content Added"))
+          .catchError((error) => log("Failed to add content: $error"));
+
       final response = await GenerationService().getText(message);
-      // final response = await _chat.sendMessage(
-      //   Content.text(message),
-      // );
       final text = response?.text;
-      _generatedContent.add((image: null, text: text, fromUser: false));
+      final answer = ContentModel(
+          image: null, text: text, fromUser: false, createdAt: DateTime.now());
+      contentProvider.content.add(answer);
+      FirebaseService()
+          .createContent(answer)
+          .then((value) => log("content Added"))
+          .catchError((error) => log("Failed to add content: $error"));
       if (text == null) {
         _showError('No response from API.');
         return;
       } else {
+        contentProvider.contentFromFirebase.refresh();
         setState(() {
           _loading = false;
           _scrollDown();

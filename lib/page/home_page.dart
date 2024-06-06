@@ -1,3 +1,4 @@
+import 'package:ai_overthinking/provider/content_provider.dart';
 import 'package:ai_overthinking/provider/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -15,6 +16,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final user = userProvider.user.watch(context);
+    final content = contentProvider.contentFromFirebase.watch(context);
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -48,6 +50,7 @@ class _HomePageState extends State<HomePage> {
                       child: ShadCard(
                         title: const ShadAvatar(
                           'assets/overthink.png',
+                          backgroundColor: Colors.blue,
                           size: Size(120, 120),
                           placeholder: Text('CN'),
                         ),
@@ -64,6 +67,7 @@ class _HomePageState extends State<HomePage> {
                         child: ShadCard(
                           title: const ShadAvatar(
                             'assets/settings.png',
+                            backgroundColor: Colors.blue,
                             size: Size(120, 120),
                             placeholder: Text('CN'),
                           ),
@@ -80,6 +84,25 @@ class _HomePageState extends State<HomePage> {
                     'History Questions',
                     style: ShadTheme.of(context).textTheme.h4,
                   ),
+                ),
+                content.map(
+                  data: (val) {
+                    if (val == null) {
+                      return const Text('No content found');
+                    }
+                    return Column(
+                      children: val
+                          .where((element) => element.fromUser)
+                          .map(
+                            (item) => ListTile(
+                              title: Text(item.text ?? 'No text'),
+                            ),
+                          )
+                          .toList(),
+                    );
+                  },
+                  error: (err) => Text('Something went wrong $err'),
+                  loading: () => const Text('Loading...'),
                 ),
                 const SizedBox(height: 100),
               ],

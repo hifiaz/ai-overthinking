@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ai_overthinking/model/content_model.dart';
 import 'package:ai_overthinking/model/setting_model.dart';
 import 'package:ai_overthinking/model/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -22,13 +23,13 @@ class FirebaseService {
     FirebaseAuth.instance.signOut();
   }
 
-  Future<DocumentReference?> createUser({
+  Future<void> createUser({
     String? email,
     String? fullName,
     int? quota,
   }) async {
     CollectionReference user = service.collection('users');
-    return await user.add({
+    return await user.doc(FirebaseAuth.instance.currentUser!.uid).set({
       'uid': FirebaseAuth.instance.currentUser!.uid,
       'email': email,
       'full_name': fullName,
@@ -38,11 +39,30 @@ class FirebaseService {
 
   Future<UserModel?> user() async {
     CollectionReference user = service.collection('users');
-    final res = await user
-        .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
-        .get();
+    final res = await user.doc(FirebaseAuth.instance.currentUser!.uid).get();
 
-    return UserModel.fromFirestore(
-        res.docs.first.data() as Map<String, dynamic>);
+    return UserModel.fromFirestore(res.data() as Map<String, dynamic>);
+  }
+
+  Future<DocumentReference?> createContent(ContentModel content) async {
+    CollectionReference contentColection = service
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection('content');
+    return await contentColection.add(content.toJson());
+  }
+
+  Future<List<ContentModel>?> contents() async {
+    CollectionReference contentCollection = service
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection('content');
+    final res =
+        await contentCollection.orderBy('createdAt', descending: true).get();
+
+    return res.docs
+        .map((doc) =>
+            ContentModel.fromFirestore(doc.data() as Map<String, dynamic>))
+        .toList();
   }
 }
