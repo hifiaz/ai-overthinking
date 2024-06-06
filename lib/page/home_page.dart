@@ -17,6 +17,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final user = userProvider.user.watch(context);
     final content = contentProvider.contentFromFirebase.watch(context);
+    contentProvider.contentComputed.watch(context);
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -32,7 +33,7 @@ class _HomePageState extends State<HomePage> {
       body: Stack(
         children: [
           SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -55,7 +56,7 @@ class _HomePageState extends State<HomePage> {
                           placeholder: Text('CN'),
                         ),
                         description: Text(
-                          'Overthinking? ->',
+                          'Overthink? ->',
                           style: ShadTheme.of(context).textTheme.h4,
                         ),
                       ),
@@ -94,8 +95,23 @@ class _HomePageState extends State<HomePage> {
                       children: val
                           .where((element) => element.fromUser)
                           .map(
-                            (item) => ListTile(
-                              title: Text(item.text ?? 'No text'),
+                            (item) => Container(
+                              padding: const EdgeInsets.all(15),
+                              margin: const EdgeInsets.only(bottom: 10),
+                              decoration: BoxDecoration(
+                                color: Colors.blue[50],
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.electric_bolt,
+                                    color: Colors.yellow[800],
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text((item.text ?? 'No text'))
+                                ],
+                              ),
                             ),
                           )
                           .toList(),
