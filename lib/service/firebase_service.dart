@@ -37,6 +37,20 @@ class FirebaseService {
     });
   }
 
+  Future<void> updateUser({
+    String? email,
+    String? fullName,
+    int? quota,
+  }) async {
+    CollectionReference user = service.collection('users');
+    return await user.doc(FirebaseAuth.instance.currentUser!.uid).update({
+      'uid': FirebaseAuth.instance.currentUser!.uid,
+      'email': email,
+      'full_name': fullName,
+      'quota': quota,
+    });
+  }
+
   Future<UserModel?> user() async {
     CollectionReference user = service.collection('users');
     final res = await user.doc(FirebaseAuth.instance.currentUser!.uid).get();

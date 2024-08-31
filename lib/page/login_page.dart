@@ -86,7 +86,7 @@ class _LoginPageState extends State<LoginPage> {
                   Align(
                     alignment: Alignment.centerRight,
                     child: ShadButton(
-                      text: const Text('Login'),
+                      child: const Text('Login'),
                       onPressed: () async {
                         context.go('/');
                         if (formKey.currentState!.saveAndValidate()) {

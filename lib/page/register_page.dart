@@ -76,7 +76,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: ShadButton(
-                    text: const Text('Register'),
+                    child: const Text('Register'),
                     onPressed: () async {
                       if (formKey.currentState!.saveAndValidate()) {
                         try {
@@ -88,16 +88,21 @@ class _RegisterPageState extends State<RegisterPage> {
                           if (credential.user != null) {
                             FirebaseService()
                                 .createUser(
-                                  email: credential.user?.email,
-                                  quota: 3,
-                                )
-                                .then((value) => context.go('/'))
-                                .catchError(
-                                  (error) => toastError(
+                              email: credential.user?.email,
+                              quota: 3,
+                            )
+                                .then((value) {
+                              if (context.mounted) context.go('/');
+                            }).catchError(
+                              (error) {
+                                if (context.mounted) {
+                                  toastError(
                                     context,
                                     message: error.message,
-                                  ),
-                                );
+                                  );
+                                }
+                              },
+                            );
                           }
                         } on FirebaseAuthException catch (e) {
                           if (context.mounted) {

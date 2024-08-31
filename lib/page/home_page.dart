@@ -1,7 +1,11 @@
+import 'dart:developer';
+
 import 'package:ai_overthinking/provider/content_provider.dart';
+import 'package:ai_overthinking/provider/purchase_provider.dart';
 import 'package:ai_overthinking/provider/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:signals/signals_flutter.dart';
 
@@ -14,20 +18,25 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final user = userProvider.user.watch(context);
+    final subscribe = subscriptionProvider.isActive.watch(context);
     final content = contentProvider.contentFromFirebase.watch(context);
     contentProvider.contentComputed.watch(context);
     return Scaffold(
       appBar: AppBar(
         actions: [
-          user.map(
-            data: (val) => TextButton(
-                onPressed: () => context.push('/settings'),
-                child: Text('Credit ${val?.quota}')),
-            error: (err) => const SizedBox(),
-            loading: () => const SizedBox(),
-          ),
+          TextButton(
+              onPressed: () async {
+                final paywallResult = await RevenueCatUI.presentPaywall();
+                log('Paywall result: $paywallResult');
+              },
+              child:
+                  Text(subscribe.value ?? false ? 'Subscribed' : 'Subscribe')),
         ],
       ),
       body: Stack(
@@ -48,16 +57,19 @@ class _HomePageState extends State<HomePage> {
                 Row(
                   children: [
                     Expanded(
-                      child: ShadCard(
-                        title: const ShadAvatar(
-                          'assets/overthink.png',
-                          backgroundColor: Colors.blue,
-                          size: Size(120, 120),
-                          placeholder: Text('CN'),
-                        ),
-                        description: Text(
-                          'Overthink? ->',
-                          style: ShadTheme.of(context).textTheme.h4,
+                      child: GestureDetector(
+                        onTap: () => context.push('/ask'),
+                        child: ShadCard(
+                          title: const ShadAvatar(
+                            'assets/overthink.png',
+                            backgroundColor: Colors.blue,
+                            size: Size(120, 120),
+                            placeholder: Text('CN'),
+                          ),
+                          description: Text(
+                            'Overthink? ->',
+                            style: ShadTheme.of(context).textTheme.h4,
+                          ),
                         ),
                       ),
                     ),
@@ -99,7 +111,7 @@ class _HomePageState extends State<HomePage> {
                               padding: const EdgeInsets.all(15),
                               margin: const EdgeInsets.only(bottom: 10),
                               decoration: BoxDecoration(
-                                color: Colors.blue[50],
+                                color: Colors.black12,
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Row(
@@ -109,7 +121,8 @@ class _HomePageState extends State<HomePage> {
                                     color: Colors.yellow[800],
                                   ),
                                   const SizedBox(width: 8),
-                                  Text((item.text ?? 'No text'))
+                                  Text((item.text ?? 'No text'),
+                                      style: ShadTheme.of(context).textTheme.p)
                                 ],
                               ),
                             ),
@@ -135,7 +148,6 @@ class _HomePageState extends State<HomePage> {
               child: ShadButton(
                 width: double.infinity,
                 onPressed: () => context.push('/ask'),
-                text: const Text('Ask'),
                 icon: const Padding(
                   padding: EdgeInsets.only(right: 8),
                   child: Icon(
@@ -143,6 +155,7 @@ class _HomePageState extends State<HomePage> {
                     size: 16,
                   ),
                 ),
+                child: const Text('Ask'),
               ),
             ),
           )

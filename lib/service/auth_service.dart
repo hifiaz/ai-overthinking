@@ -5,7 +5,7 @@ class Auth {
   final api = FirebaseService();
 
   /// Current user signal
-  late final currentUser = api.userStream().toSignal();
+  late final currentUser = api.userStream().toStreamSignal();
 
   late final settings = streamSignal(
     () => api.todosStream(currentUser.value.value?.uid ?? '0'),
@@ -18,6 +18,10 @@ class Auth {
   /// Computed signal that returns the current user name or 'N/A'
   late final currentUserName = computed(
     () => currentUser.value.value?.email ?? 'N/A',
+  );
+
+  late final currentUid = computed(
+    () => currentUser.value.value?.uid ?? '',
   );
 
   // Dispose of the stream controller

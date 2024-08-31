@@ -3,6 +3,8 @@ import 'dart:developer';
 import 'package:ai_overthinking/model/content_model.dart';
 import 'package:ai_overthinking/page/widget/message_widget.dart';
 import 'package:ai_overthinking/provider/content_provider.dart';
+import 'package:ai_overthinking/provider/purchase_provider.dart';
+import 'package:ai_overthinking/provider/user_provider.dart';
 import 'package:ai_overthinking/service/firebase_service.dart';
 import 'package:ai_overthinking/service/generative_service.dart';
 import 'package:ai_overthinking/utils/env.dart';
@@ -18,8 +20,6 @@ class AskPage extends StatefulWidget {
 }
 
 class _AskPageState extends State<AskPage> {
-  // late final GenerativeModel _model;
-  // late final ChatSession _chat;
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _textController = TextEditingController();
   final FocusNode _textFieldFocus = FocusNode();
@@ -34,6 +34,8 @@ class _AskPageState extends State<AskPage> {
 
   @override
   Widget build(BuildContext context) {
+    final subscribe = subscriptionProvider.isActive.watch(context);
+    final user = userProvider.user.watch(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Ai Overthinking'),
@@ -90,10 +92,25 @@ class _AskPageState extends State<AskPage> {
                         if (_textController.text.isEmpty) {
                           return;
                         } else {
-                          _sendChatMessage(_textController.text);
+                          if ((user.value?.quota ?? 0) > 0 ||
+                              subscribe.value == true) {
+                            _sendChatMessage(_textController.text,
+                                quota: user.value?.quota);
+                          } else {
+                            ShadToaster.of(context).show(
+                              const ShadToast(
+                                backgroundColor: Colors.red,
+                                title: Text('Run Out of Quota',
+                                    style: TextStyle(color: Colors.white)),
+                                description: Text(
+                                  'Please Subscribe to use more',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            );
+                          }
                         }
                       },
-                      text: const Text('Send'),
                       icon: const Padding(
                         padding: EdgeInsets.only(right: 8),
                         child: Icon(
@@ -101,11 +118,11 @@ class _AskPageState extends State<AskPage> {
                           size: 16,
                         ),
                       ),
+                      child: const Text('Send'),
                     )
                   else
                     ShadButton(
                       onPressed: () {},
-                      text: const Text('Please wait'),
                       icon: const Padding(
                         padding: EdgeInsets.only(right: 8),
                         child: SizedBox.square(
@@ -115,6 +132,7 @@ class _AskPageState extends State<AskPage> {
                           ),
                         ),
                       ),
+                      child: const Text('Please wait'),
                     ),
                 ],
               ),
@@ -137,7 +155,7 @@ class _AskPageState extends State<AskPage> {
     );
   }
 
-  Future<void> _sendChatMessage(String message) async {
+  Future<void> _sendChatMessage(String message, {int? quota}) async {
     setState(() {
       _loading = true;
     });
@@ -149,7 +167,9 @@ class _AskPageState extends State<AskPage> {
           fromUser: true,
           createdAt: DateTime.now());
       contentProvider.content.add(question);
-
+      if (quota != null && quota > 0) {
+        FirebaseService().updateUser(quota: quota - 1);
+      }
       FirebaseService()
           .createContent(question)
           .then((value) => log("content Added"))

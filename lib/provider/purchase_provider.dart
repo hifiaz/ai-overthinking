@@ -1,22 +1,15 @@
-// import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:signals/signals_flutter.dart';
 
-// class InAppPurchaseUtils {
-//   // Private constructor
-//   InAppPurchaseUtils._();
+class SubscriptionProvider {
+  final isActive = futureSignal<bool>(() async {
+    try {
+      CustomerInfo customerInfo = await Purchases.getCustomerInfo();
+      return customerInfo.activeSubscriptions.isNotEmpty == true;
+    } catch (e) {
+      return false;
+    }
+  }, autoDispose: true);
+}
 
-//   // Singleton instance
-//   static final InAppPurchaseUtils _instance = InAppPurchaseUtils._();
-
-//   // Getter to access the instance
-//   static InAppPurchaseUtils get inAppPurchaseUtilsInstance => _instance;
-
-//   // Create a private variable
-//   final InAppPurchase _iap = InAppPurchase.instance;
-
-//   // Add your methods related to in-app purchases here
-  
-//   // Example method
-//   void purchaseProduct(String productId) {
-//     // Implementation for purchasing a product
-//   }
-// }
+final subscriptionProvider = SubscriptionProvider();

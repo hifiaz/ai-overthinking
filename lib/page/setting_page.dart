@@ -15,14 +15,15 @@ class _SettingPageState extends State<SettingPage> {
       appBar: AppBar(
         title: const Text('Settings'),
       ),
-      body: Center(
-        child: Column(
-          children: [
-            const Text('Settings page'),
-            TextButton(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Center(
+            child: TextButton(
                 onPressed: () => auth.logout(), child: const Text('logout')),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
