@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:ai_overthinking/model/content_model.dart';
 import 'package:ai_overthinking/model/setting_model.dart';
@@ -54,7 +55,7 @@ class FirebaseService {
   Future<UserModel?> user() async {
     CollectionReference user = service.collection('users');
     final res = await user.doc(FirebaseAuth.instance.currentUser!.uid).get();
-
+    log('hello $res');
     return UserModel.fromFirestore(res.data() as Map<String, dynamic>);
   }
 

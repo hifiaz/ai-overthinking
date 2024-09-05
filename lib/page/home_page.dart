@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:ai_overthinking/provider/content_provider.dart';
 import 'package:ai_overthinking/provider/purchase_provider.dart';
-import 'package:ai_overthinking/provider/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';

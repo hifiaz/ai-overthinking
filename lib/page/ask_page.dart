@@ -9,6 +9,7 @@ import 'package:ai_overthinking/service/firebase_service.dart';
 import 'package:ai_overthinking/service/generative_service.dart';
 import 'package:ai_overthinking/utils/env.dart';
 import 'package:flutter/material.dart';
+import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:signals/signals_flutter.dart';
 
@@ -23,8 +24,6 @@ class _AskPageState extends State<AskPage> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _textController = TextEditingController();
   final FocusNode _textFieldFocus = FocusNode();
-  // final List<({Image? image, String? text, bool fromUser})> _generatedContent =
-  //     <({Image? image, String? text, bool fromUser})>[];
   bool _loading = false;
 
   @override
@@ -49,7 +48,7 @@ class _AskPageState extends State<AskPage> {
             Expanded(
               child: Environment.token.isNotEmpty
                   ? Watch((context) {
-                      final generatedContent = contentProvider.content.reversed;
+                      final generatedContent = contentProvider.content;
                       return ListView.builder(
                         controller: _scrollController,
                         itemBuilder: (context, idx) {
@@ -108,6 +107,10 @@ class _AskPageState extends State<AskPage> {
                                 ),
                               ),
                             );
+                            Future.delayed(
+                                const Duration(milliseconds: 500),
+                                () async =>
+                                    await RevenueCatUI.presentPaywall());
                           }
                         }
                       },
