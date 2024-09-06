@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
 
 class AskPage extends StatefulWidget {
   const AskPage({super.key});
@@ -48,7 +49,7 @@ class _AskPageState extends State<AskPage> {
             Expanded(
               child: Environment.token.isNotEmpty
                   ? Watch((context) {
-                      final generatedContent = contentProvider.content;
+                      final generatedContent = contentProvider.contentRealtime;
                       return ListView.builder(
                         controller: _scrollController,
                         itemBuilder: (context, idx) {
@@ -93,8 +94,12 @@ class _AskPageState extends State<AskPage> {
                         } else {
                           if ((user.value?.quota ?? 0) > 0 ||
                               subscribe.value == true) {
-                            _sendChatMessage(_textController.text,
-                                quota: user.value?.quota);
+                            _sendChatMessage(
+                              _textController.text,
+                              quota: user.value?.quota,
+                              history: contentProvider.contentRealtime
+                                  .watch(context),
+                            );
                           } else {
                             ShadToaster.of(context).show(
                               const ShadToast(
@@ -158,7 +163,8 @@ class _AskPageState extends State<AskPage> {
     );
   }
 
-  Future<void> _sendChatMessage(String message, {int? quota}) async {
+  Future<void> _sendChatMessage(String message,
+      {int? quota, List<ContentModel>? history}) async {
     setState(() {
       _loading = true;
     });
@@ -169,7 +175,7 @@ class _AskPageState extends State<AskPage> {
           text: message,
           fromUser: true,
           createdAt: DateTime.now());
-      contentProvider.content.add(question);
+      contentProvider.contentRealtime.add(question);
       if (quota != null && quota > 0) {
         FirebaseService().updateUser(quota: quota - 1);
       }
@@ -178,11 +184,23 @@ class _AskPageState extends State<AskPage> {
           .then((value) => log("content Added"))
           .catchError((error) => log("Failed to add content: $error"));
 
-      final response = await GenerationService().getText(message);
+      List<Content> historyChat = [];
+      if (history != null) {
+        for (var v in history) {
+          if (v.fromUser) {
+            historyChat.add(Content.text(v.text!));
+          } else {
+            historyChat.add(Content.model([TextPart(v.text!)]));
+          }
+        }
+      }
+
+      final response =
+          await GenerationService().getText(message, history: historyChat);
       final text = response?.text;
       final answer = ContentModel(
           image: null, text: text, fromUser: false, createdAt: DateTime.now());
-      contentProvider.content.add(answer);
+      contentProvider.contentRealtime.add(answer);
       FirebaseService()
           .createContent(answer)
           .then((value) => log("content Added"))
@@ -194,8 +212,8 @@ class _AskPageState extends State<AskPage> {
         contentProvider.contentFromFirebase.refresh();
         setState(() {
           _loading = false;
-          _scrollDown();
         });
+        _scrollDown();
       }
     } catch (e) {
       _showError(e.toString());

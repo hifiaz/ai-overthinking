@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:signals/signals_flutter.dart';
+import 'detail_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -113,16 +114,30 @@ class _HomePageState extends State<HomePage> {
                                 color: Colors.black12,
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.electric_bolt,
-                                    color: Colors.yellow[800],
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text((item.text ?? 'No text'),
-                                      style: ShadTheme.of(context).textTheme.p)
-                                ],
+                              child: GestureDetector(
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          DetailPage(item: item)),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.electric_bolt,
+                                      color: Colors.yellow[800],
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        (item.text ?? 'No text'),
+                                        style:
+                                            ShadTheme.of(context).textTheme.p,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    )
+                                  ],
+                                ),
                               ),
                             ),
                           )

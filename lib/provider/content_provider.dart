@@ -3,6 +3,7 @@ import 'package:ai_overthinking/service/firebase_service.dart';
 import 'package:signals/signals_flutter.dart';
 
 class ContentProvider {
+  final contentRealtime = listSignal<ContentModel>([]);
   final content = listSignal<ContentModel>([]);
   final contentFromFirebase = futureSignal(() => FirebaseService().contents());
   final contentComputed = computed(() {
